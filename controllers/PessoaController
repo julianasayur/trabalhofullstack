@@ -1,0 +1,109 @@
+const axios = require('axios');
+const { Pessoa } = require('../models');
+console.log(Endereco)
+
+exports.createPessoaCpf = async (req, res) => {
+    try {
+        const { cpf } = req.params;
+        const response = await axios.get(`https://viacep.com.br/ws/${cpf}/json/`);
+
+        if (response.data.erro) {
+            return res.status(404).json({ error: 'CPF não encontrado' });
+        }
+
+        const { nome, telefone } = response.data;
+
+        novoPessoa = await Pessoa.create({
+            nome: nome,
+            cpf: cpf,
+            telefone: req.body.Telefone, 
+            
+        });
+
+        res.status(201).json(novoPessoa);
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao buscar o endereço', details: error.message });
+    }};
+
+exports.createEndereco = async (req, res) => {
+    try {
+        const {nome, cpf, telefone} = req.body;
+        
+        const novoEndereco = await Endereco.create({
+            nome,
+            cpf,
+            telefone,
+           
+        });
+
+        res.status(201).json(novoPessoa);
+    }catch(error) {
+        console.error(error)
+        res.status(500).json({ error: 'Erro ao criar pessoa', details: error.message});
+    }
+};
+
+exports.getAllEnderecos = async (req, res) => {
+    try {
+        const enderecos = await Pessoa.findAll();
+        res.status(200).json(pessoas);
+    }catch(error) {
+        res.status(500).json({ error: 'Erro ao buscar pessoas', details: error.message});
+    }
+};
+
+exports.getEnderecoById = async (req, res) => {
+    try {
+        const { Id } = req.params;
+        const pessoa = await Endereco.findByPk(Id);
+
+        if (!pessoa) {
+            return res.status(404).json({ error: 'pessoa não encontrado'});
+        }
+
+        res.status(200).json(pessoas);
+    }catch(error) {
+        res.status(500).json({ error: 'Erro ao buscar pessoa', details: error.message});
+    }
+}
+
+exports.updatePessoa = async (req, res) => {
+    try {
+        const { cpf } = req.params;
+        const {Nome, Cpf, Telefone} = req.body;
+
+        const pessoa = await Pessoa.findByPk(cpf);
+
+        if (!pessoa) {
+            return res.status(404).json({ error: 'Pessoa não encontrado'})
+        }
+
+        pessoa.nome = nome;
+        pessoa.cpf = cpf;
+        pessoa.telefone = telefone;
+        
+
+        await pessoa.save();
+
+        res.status(200).json(pessoas)
+    }catch(error) {
+        res.status(500).json({ error: 'Erro ao buscar pessoa', details: error.message})
+    }
+}
+
+exports.deletePessoa = async (req, res) => {
+    try {
+        const { cpf } = req.params;
+        const endereco = await Pessoa.findByPk(cpf)
+
+        if (!pessoa) {
+            return res.status(404).json({ error: 'Pessoa não encontrado'})
+        }
+
+        await pessoa.destroy();
+
+        res.status(204).send();
+    }catch(error) {
+        res.status(500).json({ error: 'Erro ao buscar pessoa', details: error.message})
+    }
+}
